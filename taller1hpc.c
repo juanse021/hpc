@@ -63,24 +63,33 @@ float **crear_matriz(int fila, int columna, FILE *f){
 float **multiplicar_matriz(float **matriz1, float **matriz2, int fila1, int columna1, int fila2, int columna2){
     int i, j, k;
     float **matriz, s = 0;
+    int chunck = 50;
 
     printf("Allocate memory \n");
     matriz = (float **)malloc(fila1*sizeof(float*));
     for (i = 0; i < fila1; i++)
         matriz[i] = (float *)malloc(columna2*sizeof(float));
 
-    printf("Matrix multiplication \n");
-    for (i = 0; i < fila1; i++){
-        for (j = 0; j < columna2; j++){
-            for (k = 0; k < fila2; k++){
-                s = s + matriz1[i][k] * matriz2[k][j];
+  //printf("LLego al pragma \n");
+    #pragma omp parallel shared(matriz1, matriz2, matriz) private(i, j, k) num_threads(4)
+    {
+  
+        #pragma omp for schedule(dynamic, chunk)
+        printf("Matrix multiplication \n");
+        for (i = 0; i < fila1; i++){
+            for (j = 0; j < columna2; j++){
+                for (k = 0; k < fila2; k++){
+                    s = s + matriz1[i][k] * matriz2[k][j];
+                }
+                matriz[i][j] = s;
+                s = 0;
             }
-            matriz[i][j] = s;
-            s = 0;
         }
+        return matriz;
     }
-    return matriz;
 }
+    
+
 
 void imprimir_matriz(float **matriz, int fila, int columna){
     int i, j;
