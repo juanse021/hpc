@@ -1,7 +1,7 @@
 #include<bits/stdc++.h>
 
 using namespace std;
-const int MX = 2000;
+const int MX = 5000;
 
 int main () {
   cout << MX << endl << MX << endl;
