@@ -10,8 +10,8 @@ __global__ void grayImage(unsigned char *image_begin, int width, int height, uns
     int col = blockIdx.x * blockDim.x + threadIdx.x;
 
     if ((row < height) && (col < width)) {
-        image_end[row*width+col] = image_end[(row*width+col) * 3] * 0.3 + \
-        image_end[(row*width+col) * 3] * 0.59 + \
+        image_end[row*width+col] = image_end[(row*width+col) * 3 + 2] * 0.3 + \
+        image_end[(row*width+col) * 3 + 1] * 0.59 + \
         image_end[(row*width+col) * 3] * 0.11;
     }
 }
@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
     }
 
     cudaError_t error = cudaSuccess;
-    int size = width * height * 3 * sizeof(unsigned char*);
+    int size = width * height * 3 * sizeof(unsigned char*) * image.channels();
     unsigned char *h_imageA, *h_imageB, *d_imageA, *d_imageB;
 
     // Separar memoria de imagen color en host
@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
 
     h_imageA = image.data;
 
-    error = cudaMemcpy(d_imageA, h_imageA, size,cudaMemcpyHostToDevice);
+    error = cudaMemcpy(d_imageA, h_imageA, size, cudaMemcpyHostToDevice);
     if (error != cudaSuccess) {
         printf("Error... h_imageA a d_imageA \n");
         return -1;
@@ -69,7 +69,11 @@ int main(int argc, char **argv) {
     imageGray.create(width, heigth, CV_8UC1);
     imageGray.data = d_imageB;
 
+    imwrite("./ferrar_gray.jpg", imageGray);
 
+
+    free(h_imageA); free(h_imageB);
+    cudaFree(d_imageA); cudaFree(d_imageB);
 
     return 0;
 }
