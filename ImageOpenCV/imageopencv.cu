@@ -1,9 +1,10 @@
 #include <cuda.h>
-#include <cv.h>
-#include <highgui.h>
+#include <math.h>
 #include <stdio.h>
-#include <time.h>
-#include <fstream>
+#include <malloc.h>
+#include <opencv2/opencv.hpp>
+
+using namespace cv;
 
 __global__ void grayImage(unsigned char *image_begin, int width, int height, unsigned char *image_end) {
     int row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -23,24 +24,24 @@ int main(int argc, char **argv) {
     int height = image.size().height();
 
     if (!image.data) {
-        cout <<  "Could not open or find the image" << std::endl ;
+        printf("Could not open or find the image \n");
         return -1;
     }
 
     cudaError_t error = cudaSuccess;
-    int size = width * height * 3 * sizeof(unsigned char*) * image.channels();
+    int size = width * height * sizeof(unsigned char) * image.channels();
     unsigned char *h_imageA, *h_imageB, *d_imageA, *d_imageB;
 
     // Separar memoria de imagen color en host
     h_imageA = (unsigned char*)malloc(size));
-    error = cudaMalloc((void**)&d_imageA, sizeof(unsigned char*) * width * height);
+    error = cudaMalloc((void**)&d_imageA, sizeof(unsigned char) * width * height);
     if (error != cudaSuccess) {
         printf("Error.... d_imageA \n");
         return -1;
     }
     // Separar memoria de imagen gris en host
     h_imageB = (unsigned char*)malloc(size));
-    error = cudaMalloc((void**)&d_imageB, sizeof(unsigned char*) * width * height);
+    error = cudaMalloc((void**)&d_imageB, sizeof(unsigned char) * width * height);
     if (error != cudaSuccess) {
         printf("Error.... d_imageB \n");
         return -1;
@@ -67,9 +68,9 @@ int main(int argc, char **argv) {
 
     Mat imageGray;
     imageGray.create(width, heigth, CV_8UC1);
-    imageGray.data = d_imageB;
+    imageGray.data = h_imageB;
 
-    imwrite("./ferrar_gray.jpg", imageGray);
+    imwrite("ferrari_gray.jpg", imageGray);
 
 
     free(h_imageA); free(h_imageB);

@@ -1,0 +1,26 @@
+
+
+/home/users/juanse021/hpc/ImageOpenCV/imageopencv.cu(22): error: identifier "imread" is undefined
+
+/home/users/juanse021/hpc/ImageOpenCV/imageopencv.cu(27): error: identifier "cout" is undefined
+
+/home/users/juanse021/hpc/ImageOpenCV/imageopencv.cu(69): error: identifier "Mat" is undefined
+
+/home/users/juanse021/hpc/ImageOpenCV/imageopencv.cu(70): error: identifier "heigth" is undefined
+
+/home/users/juanse021/hpc/ImageOpenCV/imageopencv.cu(73): error: identifier "imwrite" is undefined
+
+At end of source: error: expected a "}"
+
+7 errors detected in the compilation of "/tmp/tmpxft_0000235a_00000000-7_imageopencv.cpp1.ii".
+CMake Error at imageopencv_generated_imageopencv.cu.o.cmake:266 (message):
+  Error generating file
+  /home/users/juanse021/hpc/ImageOpenCV/CMakeFiles/imageopencv.dir//./imageopencv_generated_imageopencv.cu.o
+
+
+CMakeFiles/imageopencv.dir/build.make:375: recipe for target 'CMakeFiles/imageopencv.dir/imageopencv_generated_imageopencv.cu.o' failed
+make[2]: *** [CMakeFiles/imageopencv.dir/imageopencv_generated_imageopencv.cu.o] Error 1
+CMakeFiles/Makefile2:67: recipe for target 'CMakeFiles/imageopencv.dir/all' failed
+make[1]: *** [CMakeFiles/imageopencv.dir/all] Error 2
+Makefile:83: recipe for target 'all' failed
+make: *** [all] Error 2
