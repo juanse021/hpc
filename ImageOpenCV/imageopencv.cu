@@ -30,11 +30,12 @@ int main(int argc, char **argv) {
 
     cudaError_t error = cudaSuccess;
     int size = width * height * sizeof(unsigned char) * image.channels();
+    int sizeGray = width * height * sizeof(unsigned char);
     unsigned char *h_imageA, *h_imageB, *d_imageA, *d_imageB;
 
     // Separar memoria de imagen color en host
     h_imageA = (unsigned char*)malloc(size);
-    error = cudaMalloc((void**)&d_imageA, sizeof(unsigned char) * width * height);
+    error = cudaMalloc((void**)&d_imageA, size);
     if (error != cudaSuccess) {
         printf("Error.... d_imageA \n");
         return -1;
@@ -42,7 +43,7 @@ int main(int argc, char **argv) {
 
 
     h_imageB = (unsigned char*)malloc(size);
-    error = cudaMalloc((void**)&d_imageB, sizeof(unsigned char) * width * height);
+    error = cudaMalloc((void**)&d_imageB, sizeGray);
     if (error != cudaSuccess) {
         printf("Error.... d_imageB \n");
         return -1;
