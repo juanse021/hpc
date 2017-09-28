@@ -20,8 +20,8 @@ __global__ void grayImage(unsigned char *image_begin, int width, int height, uns
 int main(int argc, char **argv) {
     char *imageName = argv[1];
     Mat image = imread(imageName, 1);
-    int width = image.size().width();
-    int height = image.size().height();
+    int width = image.size().width;
+    int height = image.size().height;
 
     if (!image.data) {
         printf("Could not open or find the image \n");
@@ -33,14 +33,15 @@ int main(int argc, char **argv) {
     unsigned char *h_imageA, *h_imageB, *d_imageA, *d_imageB;
 
     // Separar memoria de imagen color en host
-    h_imageA = (unsigned char*)malloc(size));
+    h_imageA = (unsigned char*)malloc(size);
     error = cudaMalloc((void**)&d_imageA, sizeof(unsigned char) * width * height);
     if (error != cudaSuccess) {
         printf("Error.... d_imageA \n");
         return -1;
     }
-    // Separar memoria de imagen gris en host
-    h_imageB = (unsigned char*)malloc(size));
+
+
+    h_imageB = (unsigned char*)malloc(size);
     error = cudaMalloc((void**)&d_imageB, sizeof(unsigned char) * width * height);
     if (error != cudaSuccess) {
         printf("Error.... d_imageB \n");
@@ -67,7 +68,7 @@ int main(int argc, char **argv) {
     }
 
     Mat imageGray;
-    imageGray.create(width, heigth, CV_8UC1);
+    imageGray.create(width, height, CV_8UC1);
     imageGray.data = h_imageB;
 
     imwrite("ferrari_gray.jpg", imageGray);
