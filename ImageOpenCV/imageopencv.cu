@@ -20,8 +20,9 @@ __global__ void grayImage(unsigned char *image_begin, int width, int height, uns
 int main(int argc, char **argv) {
     char *imageName = argv[1];
     Mat image = imread(imageName, 1);
-    int width = image.size().width;
-    int height = image.size().height;
+    Size s = image.size()
+    int width = s.width;
+    int height = s.height;
 
     if (!image.data) {
         printf("Could not open or find the image \n");
@@ -41,19 +42,18 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-
-    h_imageB = (unsigned char*)malloc(size);
-    error = cudaMalloc((void**)&d_imageB, sizeGray);
-    if (error != cudaSuccess) {
-        printf("Error.... d_imageB \n");
-        return -1;
-    }
-
     h_imageA = image.data;
 
     error = cudaMemcpy(d_imageA, h_imageA, size, cudaMemcpyHostToDevice);
     if (error != cudaSuccess) {
         printf("Error... h_imageA a d_imageA \n");
+        return -1;
+    }
+
+    h_imageB = (unsigned char*)malloc(sizeGray);
+    error = cudaMalloc((void**)&d_imageB, sizeGray);
+    if (error != cudaSuccess) {
+        printf("Error.... d_imageB \n");
         return -1;
     }
 
