@@ -6,7 +6,16 @@
 
 using namespace cv;
 
-__global__ void grayImage(unsigned char *image_begin, int width, int height, unsigned char *image_end) {
+__host__ void grayImageHost(unsigned char *image_begin, int width, int height, unsigned char *image_end) {
+    for(int row = 0; row < height; row++) {
+        for(int col = 0; col < width; col++) {
+            image_end[row*width+col] = image_end[(row*width+col) * 3 + 2] * 0.3 + \
+            image_end[(row*width+col) * 3 + 1] * 0.59 + \
+            image_end[(row*width+col) * 3] * 0.11;        }
+    }
+}
+
+__global__ void grayImageDevice(unsigned char *image_begin, int width, int height, unsigned char *image_end) {
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -59,7 +68,7 @@ int main(int argc, char **argv) {
 
     dim3 dimBlock(32, 32, 1);
     dim3 dimGrid(ceil(width/float(32)), ceil(height/float(32)), 1);
-    grayImage<<<dimGrid, dimBlock>>>(d_imageA, width, height, d_imageB);
+    grayImageDevice<<<dimGrid, dimBlock>>>(d_imageA, width, height, d_imageB);
     cudaDeviceSynchronize();
 
     error = cudaMemcpy(h_imageB, d_imageB, size, cudaMemcpyDeviceToHost);
@@ -67,6 +76,8 @@ int main(int argc, char **argv) {
         printf("Error... d_imageB a h_imageB \n");
         return -1;
     }
+
+    grayImageHost(h_imageA, width, height, h_imageB);
 
     Mat imageGray;
     imageGray.create(width, height, CV_8UC1);
