@@ -7,11 +7,12 @@
 using namespace cv;
 
 __host__ void grayImageHost(unsigned char *image_begin, int width, int height, unsigned char *image_end) {
-    for(int row = 0; row < height; row++) {
-        for(int col = 0; col < width; col++) {
+    for (int row = 0; row < height; row++) {
+        for (int col = 0; col < width; col++) {
             image_end[row*width+col] = image_end[(row*width+col) * 3 + 2] * 0.3 + \
             image_end[(row*width+col) * 3 + 1] * 0.59 + \
-            image_end[(row*width+col) * 3] * 0.11;        }
+            image_end[(row*width+col) * 3] * 0.11;
+        }
     }
 }
 
@@ -29,7 +30,7 @@ __global__ void grayImageDevice(unsigned char *image_begin, int width, int heigh
 int main(int argc, char **argv) {
     char *imageName = argv[1];
     Mat image = imread(imageName, 1);
-    Size s = image.size()
+    Size s = image.size();
     int width = s.width;
     int height = s.height;
 
@@ -59,6 +60,7 @@ int main(int argc, char **argv) {
         return -1;
     }
 
+    // Separar memoria de imagen gris en host
     h_imageB = (unsigned char*)malloc(sizeGray);
     error = cudaMalloc((void**)&d_imageB, sizeGray);
     if (error != cudaSuccess) {
