@@ -6,19 +6,6 @@
 
 using namespace cv;
 
-<<<<<<< HEAD
-=======
-__host__ void grayImageHost(unsigned char *image_begin, int width, int height, unsigned char *image_end) {
-    for (int row = 0; row < height; row++) {
-        for (int col = 0; col < width; col++) {
-            image_end[row*width+col] = image_end[(row*width+col) * 3 + 2] * 0.3 + \
-            image_end[(row*width+col) * 3 + 1] * 0.59 + \
-            image_end[(row*width+col) * 3] * 0.11;
-        }
-    }
-}
->>>>>>> 954d75dd6e98c69d7c107908064017c9a5e63d84
-
 __global__ void grayImageDevice(unsigned char *image_begin, int width, int height, unsigned char *image_end) {
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = blockIdx.x * blockDim.x + threadIdx.x;
@@ -31,12 +18,6 @@ __global__ void grayImageDevice(unsigned char *image_begin, int width, int heigh
 int main(int argc, char **argv) {
     char *imageName = argv[1];
     Mat image = imread(imageName, 1);
-<<<<<<< HEAD
-=======
-    Size s = image.size();
-    int width = s.width;
-    int height = s.height;
->>>>>>> 954d75dd6e98c69d7c107908064017c9a5e63d84
 
     if (!image.data) {
         printf("Could not open or find the image \n");
