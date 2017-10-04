@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
     }
 
     dim3 dimBlock(32, 32, 1);
-    dim3 dimGrid(ceil(height/32.0), ceil(width/32.0), 1);
+    dim3 dimGrid(34, 52 , 1);
 
     grayImageDevice<<<dimGrid, dimBlock>>>(d_imageA, width, height, d_imageB);
     cudaDeviceSynchronize();
