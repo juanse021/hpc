@@ -6,6 +6,8 @@
 
 using namespace cv;
 
+<<<<<<< HEAD
+=======
 __host__ void grayImageHost(unsigned char *image_begin, int width, int height, unsigned char *image_end) {
     for (int row = 0; row < height; row++) {
         for (int col = 0; col < width; col++) {
@@ -15,37 +17,44 @@ __host__ void grayImageHost(unsigned char *image_begin, int width, int height, u
         }
     }
 }
+>>>>>>> 954d75dd6e98c69d7c107908064017c9a5e63d84
 
 __global__ void grayImageDevice(unsigned char *image_begin, int width, int height, unsigned char *image_end) {
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = blockIdx.x * blockDim.x + threadIdx.x;
 
     if ((row < height) && (col < width)) {
-        image_end[row*width+col] = image_end[(row*width+col) * 3 + 2] * 0.3 + \
-        image_end[(row*width+col) * 3 + 1] * 0.59 + \
-        image_end[(row*width+col) * 3] * 0.11;
+        image_end[row*width+col] = image_begin[(row*width+col) * 3 + 2] * 0.3 + image_begin[(row*width+col) * 3 + 1] * 0.59 + image_begin[(row*width+col) * 3] * 0.11;
     }
 }
 
 int main(int argc, char **argv) {
     char *imageName = argv[1];
     Mat image = imread(imageName, 1);
+<<<<<<< HEAD
+=======
     Size s = image.size();
     int width = s.width;
     int height = s.height;
+>>>>>>> 954d75dd6e98c69d7c107908064017c9a5e63d84
 
     if (!image.data) {
         printf("Could not open or find the image \n");
         return -1;
     }
 
+    Size s = image.size();
+    int width = s.width;
+    int height = s.height;
+
     cudaError_t error = cudaSuccess;
     int size = width * height * sizeof(unsigned char) * image.channels();
     int sizeGray = width * height * sizeof(unsigned char);
+
+
     unsigned char *h_imageA, *h_imageB, *d_imageA, *d_imageB;
 
-    // Separar memoria de imagen color en host
-    h_imageA = (unsigned char*)malloc(size);
+    // h_imageA = (unsigned char*)malloc(size);
     error = cudaMalloc((void**)&d_imageA, size);
     if (error != cudaSuccess) {
         printf("Error.... d_imageA \n");
@@ -69,26 +78,27 @@ int main(int argc, char **argv) {
     }
 
     dim3 dimBlock(32, 32, 1);
-    dim3 dimGrid(ceil(width/float(32)), ceil(height/float(32)), 1);
+    dim3 dimGrid(ceil(height/32.0), ceil(width/32.0), 1);
+
     grayImageDevice<<<dimGrid, dimBlock>>>(d_imageA, width, height, d_imageB);
     cudaDeviceSynchronize();
 
-    error = cudaMemcpy(h_imageB, d_imageB, size, cudaMemcpyDeviceToHost);
+    error = cudaMemcpy(h_imageB, d_imageB, sizeGray, cudaMemcpyDeviceToHost);
     if (error != cudaSuccess) {
         printf("Error... d_imageB a h_imageB \n");
         return -1;
     }
 
-    grayImageHost(h_imageA, width, height, h_imageB);
+    //grayImageHost(h_imageA, width, height, h_imageB);
 
     Mat imageGray;
-    imageGray.create(width, height, CV_8UC1);
+    imageGray.create(height, width, CV_8UC1);
     imageGray.data = h_imageB;
 
     imwrite("ferrari_gray.jpg", imageGray);
 
 
-    free(h_imageA); free(h_imageB);
+    free(h_imageB);
     cudaFree(d_imageA); cudaFree(d_imageB);
 
     return 0;
