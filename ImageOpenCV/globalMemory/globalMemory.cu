@@ -33,8 +33,8 @@ __device__ double clamp(double value) {
 __global__ void sobelFilter(const uchar *imgInput, const int width, const int height, uchar *imgOutput) {
     const int col = blockIdx.x * blockDim.x + threadIdx.x;
     const int row = blockIdx.y * blockDim.y + threadIdx.y;
-    const int sobel_x = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
-    const int sobel_y = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
+    const int sobel_x[] = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
+    const int sobel_y[] = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
     
     double magnitude_x = 0;
     double magnitude_y = 0;
