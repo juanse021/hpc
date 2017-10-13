@@ -14,47 +14,48 @@ __global__ void grayImageDevice(const uchar *imgInput, const int width, const in
     const int row = blockIdx.y * blockDim.y + threadIdx.y;
 
     if (row < height && col < width) {
-        imgOutput[row*width+col] = imgInput[(row * width + col) * 3 + 2] * 0.3 + \
-                                   imgInput[(row * width + col) * 3 + 1] * 0.59 + \
-                                   imgInput[(row * width + col) * 3] * 0.11;
+        int index = row * width + col;
+        imgOutput[index] = imgInput[(row * width + col) * 3 + 2] * 0.3 + \
+                           imgInput[(row * width + col) * 3 + 1] * 0.59 + \
+                           imgInput[(row * width + col) * 3] * 0.11;
     }
 }
 
-__device__ double clamp(double value) {
+__device__ uchar clamp(double value) {
     if (value > 255)
         value = 255;
     else if (value < 0)
         value = 0;
 
-    return value;
+    return (uchar)value;
 }
 
 
 __global__ void sobelFilter(const uchar *imgInput, const int width, const int height, uchar *imgOutput) {
     const int col = blockIdx.x * blockDim.x + threadIdx.x;
     const int row = blockIdx.y * blockDim.y + threadIdx.y;
-    const int sobel_x[] = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
-    const int sobel_y[] = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
+    const char sobel_x[] = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
+    const char sobel_y[] = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
     
     double magnitude_x = 0;
     double magnitude_y = 0;
 
     const int maskWidth = 3;
 
-    if (col <= 0 || col > width || row <= 0 || row > height)
+    if (col > width && row > height)
         return;
 
     for (int i = 0; i < maskWidth; i++) {
+        int focus_x = i + col;
         for (int j = 0; j < maskWidth; j++) {
-            int focus_x = i + col;
             int focus_y = j + row;
-            magnitude_x += imgOutput[focus_x + focus_y * width] * sobel_x[i * maskWidth + j];
-            magnitude_y += imgOutput[focus_x + focus_y * width] * sobel_y[i * maskWidth + j];
+            magnitude_x += imgInput[focus_y + focus_x * width] * sobel_x[i * maskWidth + j];
+            magnitude_y += imgInput[focus_y + focus_x * width] * sobel_y[i * maskWidth + j];
         }
     }
 
     double magnitude = sqrt(magnitude_x * magnitude_x + magnitude_y * magnitude_y);
-    imgOutput[row + col * width] = clamp(magnitude);
+    imgOutput[col + row * width] = clamp(magnitude);
 
 }
 
@@ -86,9 +87,9 @@ int main(int argc, char **argv) {
 
     h_imageA = image.data;
 
-    //clock_t startGPU, endGPU, startCPU, endCPU;
+    clock_t startGPU, endGPU, startCPU, endCPU;
     
-    //startGPU = clock();
+    startGPU = clock();
     error = cudaMemcpy(d_imageA, h_imageA, size, cudaMemcpyHostToDevice);
     if (error != cudaSuccess) {
         printf("Error... h_imageA a d_imageA \n");
@@ -118,14 +119,14 @@ int main(int argc, char **argv) {
     grayImageDevice<<<dimGrid, dimBlock>>>(d_imageA, width, height, d_imageB);
     cudaDeviceSynchronize();
 
+    sobelFilter<<<dimGrid, dimBlock>>>(d_imageB, width, height, d_imageC);
+    cudaDeviceSynchronize();
+
     error = cudaMemcpy(h_imageB, d_imageB, sizeGray, cudaMemcpyDeviceToHost);
     if (error != cudaSuccess) {
         printf("Error... d_imageB a h_imageB \n");
         return -1;
     }
-
-    sobelFilter<<<dimGrid, dimBlock>>>(d_imageB, width, height, d_imageC);
-    cudaDeviceSynchronize();
 
     error = cudaMemcpy(h_imageC, d_imageC, sizeGray, cudaMemcpyDeviceToHost);
     if (error != cudaSuccess) {
@@ -134,10 +135,10 @@ int main(int argc, char **argv) {
     }
 
 
-    //endGPU = clock();
+    endGPU = clock();
     
-    //double timeGPU = ((double)(endGPU - startGPU)) / CLOCKS_PER_SEC;
-    //printf("El tiempo de ejecucion en GPU paralelo es: %.10f\n", timeGPU);
+    double timeGPU = ((double)(endGPU - startGPU)) / CLOCKS_PER_SEC;
+    printf("El tiempo de ejecucion en GPU es: %.10f\n", timeGPU);
  
     Mat imageGray, sobelImage;
     imageGray.create(height, width, CV_8UC1);
@@ -145,20 +146,20 @@ int main(int argc, char **argv) {
     imageGray.data = h_imageB;
     sobelImage.data = h_imageC;
     
-    /*
-    startCPU = clock();
-    Mat imageGrayCV;
-    cvtColor(image, imageGrayCV, CV_BGR2GRAY);
-    endCPU = clock();
     
+    startCPU = clock();
+    Mat imageGrayCV, imageSobel_x, abs_imageSobel_x;
+    cvtColor(image, imageGrayCV, CV_BGR2GRAY);
+    Sobel(imageGrayCV, imageSobel_x, CV_8UC1, 1, 0, 3, 1, 0, BORDER_DEFAULT);
+    convertScaleAbs(imageSobel_x, abs_imageSobel_x);
+    endCPU = clock();
 
     double timeCPU = ((double)(endCPU - startCPU)) / CLOCKS_PER_SEC;
     printf("El tiempo de ejecucion en CPU secuencial es: %.10f\n", timeCPU);
     
-
-    Mat imageSobel;
-    Sobel(imageGray, imageSobel, CV_32F, 1, 0);
-    */
+    double acceleration = (timeCPU/timeGPU);
+    printf("La aceleracion obtenida es de: %.10fX\n", acceleration);    
+    
 
     imwrite("ferrari_gray.jpg", imageGray);
     imwrite("ferrari_sobel.jpg", sobelImage);
