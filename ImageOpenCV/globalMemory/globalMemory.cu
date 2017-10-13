@@ -14,9 +14,9 @@ __global__ void grayImageDevice(const uchar *imgInput, const int width, const in
     const int row = blockIdx.y * blockDim.y + threadIdx.y;
 
     if (row < height && col < width) {
-        imgOutput[row*width+col] = imgInput[(row*width+col) * 3 + 2] * 0.3 + \
-                                   imgInput[(row*width+col) * 3 + 1] * 0.59 + \
-                                   imgInput[(row*width+col) * 3] * 0.11;
+        imgOutput[row*width+col] = imgInput[(row * width + col) * 3 + 2] * 0.3 + \
+                                   imgInput[(row * width + col) * 3 + 1] * 0.59 + \
+                                   imgInput[(row * width + col) * 3] * 0.11;
     }
 }
 
@@ -72,10 +72,11 @@ int main(int argc, char **argv) {
     int height = s.height;
 
     cudaError_t error = cudaSuccess;
+
     int size = width * height * sizeof(uchar) * image.channels();
     int sizeGray = width * height * sizeof(uchar);
 
-    uchar *h_imageA, *h_imageB, *d_imageA, *d_imageB;
+    uchar *h_imageA, *h_imageB, *h_imageC, *d_imageA, *d_imageB, *d_imageC;
 
     error = cudaMalloc((void**)&d_imageA, size);
     if (error != cudaSuccess) {
@@ -85,9 +86,9 @@ int main(int argc, char **argv) {
 
     h_imageA = image.data;
 
-    clock_t startGPU, endGPU, startCPU, endCPU;
+    //clock_t startGPU, endGPU, startCPU, endCPU;
     
-    startGPU = clock();
+    //startGPU = clock();
     error = cudaMemcpy(d_imageA, h_imageA, size, cudaMemcpyHostToDevice);
     if (error != cudaSuccess) {
         printf("Error... h_imageA a d_imageA \n");
@@ -101,7 +102,15 @@ int main(int argc, char **argv) {
         printf("Error.... d_imageB \n");
         return -1;
     }
-    
+
+    h_imageC = (uchar*)malloc(sizeGray);
+    error = cudaMalloc((void**)&d_imageC, sizeGray);
+    if (error != cudaSuccess) {
+        printf("Error.... d_imageC \n");
+        return -1;
+    }
+
+
     int blockSize = 32;
     dim3 dimBlock(blockSize, blockSize, 1);
     dim3 dimGrid(ceil(width/float(blockSize)), ceil(height/float(blockSize)), 1);
@@ -114,33 +123,49 @@ int main(int argc, char **argv) {
         printf("Error... d_imageB a h_imageB \n");
         return -1;
     }
-    endGPU = clock();
+
+    sobelFilter<<<dimGrid, dimBlock>>>(d_imageB, width, height, d_imageC);
+    cudaDeviceSynchronize();
+
+    error = cudaMemcpy(h_imageC, d_imageC, sizeGray, cudaMemcpyDeviceToHost);
+    if (error != cudaSuccess) {
+        printf("Error... d_imageC a h_imageC \n");
+        return -1;
+    }
+
+
+    //endGPU = clock();
     
-    double timeGPU = ((double)(endGPU - startGPU)) / CLOCKS_PER_SEC;
-    printf("El tiempo de ejecucion en GPU paralelo es: %.10f\n", timeGPU);
+    //double timeGPU = ((double)(endGPU - startGPU)) / CLOCKS_PER_SEC;
+    //printf("El tiempo de ejecucion en GPU paralelo es: %.10f\n", timeGPU);
  
-    Mat imageGray;
+    Mat imageGray, sobelImage;
     imageGray.create(height, width, CV_8UC1);
+    sobelImage.create(height, width, CV_8UC1);
     imageGray.data = h_imageB;
+    sobelImage.data = h_imageC;
     
+    /*
     startCPU = clock();
     Mat imageGrayCV;
     cvtColor(image, imageGrayCV, CV_BGR2GRAY);
     endCPU = clock();
     
+
     double timeCPU = ((double)(endCPU - startCPU)) / CLOCKS_PER_SEC;
     printf("El tiempo de ejecucion en CPU secuencial es: %.10f\n", timeCPU);
     
-    //Mat imageSobel;
-    //Sobel(imageGray, imageSobel, CV_32F, 1, 0);
-    
+
+    Mat imageSobel;
+    Sobel(imageGray, imageSobel, CV_32F, 1, 0);
+    */
 
     imwrite("ferrari_gray.jpg", imageGray);
-    //imwrite("ferrari_sobel.jpg", imageSobel);
+    imwrite("ferrari_sobel.jpg", sobelImage);
 
 
-    free(h_imageB);
-    cudaFree(d_imageA); cudaFree(d_imageB);
+    free(h_imageB); free(h_imageC);
+    cudaFree(d_imageA); cudaFree(d_imageB); cudaFree(d_imageC);
 
     return 0;
 }
