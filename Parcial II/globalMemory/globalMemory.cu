@@ -60,6 +60,17 @@ __global__ void sobelFilter(const uchar *imgInput, const int width, const int he
 
 }
 
+void wrTimes(Size s, char *imgname, double time) {
+    long sz = s.width * s.height;
+    FILE *f = ("./times/data.txt", "w+");
+    if (f == NULL)
+        printf("Error opening file\n");
+    else
+        fprintf(f, "%ld %s %lf\n", sz, imgname, time);
+
+    fclose(f);
+}
+
 
 int main(int argc, char **argv) {
     char *imageName = argv[1];
@@ -139,6 +150,8 @@ int main(int argc, char **argv) {
     
     double timeGPU = ((double)(endGPU - startGPU)) / CLOCKS_PER_SEC;
     printf("El tiempo de ejecucion en GPU es: %.10f\n", timeGPU);
+
+    wrTimes(s, imageName, double timeGPU);
  
     Mat imageGray, sobelImage;
     imageGray.create(height, width, CV_8UC1);

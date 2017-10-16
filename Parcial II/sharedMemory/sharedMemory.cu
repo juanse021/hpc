@@ -41,9 +41,7 @@ __global__ void sobelFilter(const uchar *imgInput, const int width, const int he
     
     __shared__ sMat[TILE_SIZE + maskWidth - 1][TILE_SIZE + maskWidth - 1];
 
-    /*
-     Falta implementar
-    */
+    uint 
 
 }
 
