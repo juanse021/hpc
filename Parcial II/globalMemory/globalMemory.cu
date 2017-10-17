@@ -68,7 +68,7 @@ __global__ void sobelFilter(const uchar *imgInput, const int width, const int he
 
 void wrTimes(Size s, char *imgname, double time) {
     long sz = s.width * s.height;
-    FILE *f = ("./times/data.txt", "w+");
+    FILE *f = fopen("data.txt", "a");
     if (f == NULL)
         printf("Error opening file\n");
     else
