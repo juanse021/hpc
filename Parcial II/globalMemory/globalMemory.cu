@@ -2,6 +2,7 @@
 #include <math.h>
 #include <time.h>
 #include <stdio.h>
+#include <libgen.h>
 #include <malloc.h>
 #include <opencv2/opencv.hpp>
 
@@ -43,15 +44,20 @@ __global__ void sobelFilter(const uchar *imgInput, const int width, const int he
 
     const int maskWidth = 3;
 
+    int starti = row - (maskWidth/2);
+    int startj = col - (maskWidth/2);
+
     if (col > width && row > height)
         return;
 
     for (int i = 0; i < maskWidth; i++) {
-        int focus_x = i + col;
+        int focus_x = starti + i;
         for (int j = 0; j < maskWidth; j++) {
-            int focus_y = j + row;
-            magnitude_x += imgInput[focus_y + focus_x * width] * sobel_x[i * maskWidth + j];
-            magnitude_y += imgInput[focus_y + focus_x * width] * sobel_y[i * maskWidth + j];
+            int focus_y = startj + j;
+            if (focus_x >= 0 && focus_x < height && focus_y >= 0 && focus_y < width) {
+                magnitude_x += imgInput[focus_y + focus_x * width] * sobel_x[i * maskWidth + j];
+                magnitude_y += imgInput[focus_y + focus_x * width] * sobel_y[i * maskWidth + j];
+            }
         }
     }
 
@@ -151,7 +157,7 @@ int main(int argc, char **argv) {
     double timeGPU = ((double)(endGPU - startGPU)) / CLOCKS_PER_SEC;
     printf("El tiempo de ejecucion en GPU es: %.10f\n", timeGPU);
 
-    wrTimes(s, imageName, double timeGPU);
+    wrTimes(s, basename(imageName), timeGPU);
  
     Mat imageGray, sobelImage;
     imageGray.create(height, width, CV_8UC1);
@@ -174,8 +180,8 @@ int main(int argc, char **argv) {
     printf("La aceleracion obtenida es de: %.10fX\n", acceleration);    
     
 
-    imwrite("ferrari_gray.jpg", imageGray);
-    imwrite("ferrari_sobel.jpg", sobelImage);
+    //imwrite("ferrari_gray.jpg", imageGray);
+    //imwrite("ferrari_sobel.jpg", sobelImage);
 
     free(h_imageB); free(h_imageC);
     cudaFree(d_imageA); cudaFree(d_imageB); cudaFree(d_imageC);

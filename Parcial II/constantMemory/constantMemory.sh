@@ -11,4 +11,13 @@ export LD_LIBRARY_PATH=/usr/local/cuda-8.0/lib64/${LD_LIBRARY_PATH:+:${LD_LIBRAR
 
 export CUDA_VISIBLE_DEVICES=0
 
+./constantMemory ../Images/bentley.jpg
+./constantMemory ../Images/bugatti.jpg
+./constantMemory ../Images/chevrolet.jpg
 ./constantMemory ../Images/ferrari.jpg
+./constantMemory ../Images/ford.jpg
+./constantMemory ../Images/koenigsegg.jpg
+./constantMemory ../Images/lamborghini.jpg
+./constantMemory ../Images/mercedes.jpg
+./constantMemory ../Images/nissan.jpg
+./constantMemory ../Images/pagani.jpg

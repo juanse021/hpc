@@ -2,6 +2,7 @@
 #include <math.h>
 #include <time.h>
 #include <stdio.h>
+#include <libgen.h>
 #include <malloc.h>
 #include <opencv2/opencv.hpp>
 
@@ -43,15 +44,20 @@ __global__ void sobelFilter(const uchar *imgInput, const int width, const int he
     double magnitude_x = 0;
     double magnitude_y = 0;
 
+    int starti = row - (maskWidth/2);
+    int startj = col - (maskWidth/2);
+
     if (col > width && row > height)
         return;
 
     for (int i = 0; i < maskWidth; i++) {
-        int focus_x = i + col;
+        int focus_x = starti + i;
         for (int j = 0; j < maskWidth; j++) {
-            int focus_y = j + row;
-            magnitude_x += imgInput[focus_y + focus_x * width] * MX[i * maskWidth + j];
-            magnitude_y += imgInput[focus_y + focus_x * width] * MY[i * maskWidth + j];
+            int focus_y = startj + j;
+            if (focus_x >= 0 && focus_x < height && focus_y >= 0 && focus_y < width) {
+                magnitude_x += imgInput[focus_y + focus_x * width] * sobel_x[i * maskWidth + j];
+                magnitude_y += imgInput[focus_y + focus_x * width] * sobel_y[i * maskWidth + j];
+            }
         }
     }
 
