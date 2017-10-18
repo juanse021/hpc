@@ -170,14 +170,8 @@ int main(int argc, char **argv) {
     
     double timeGPU = ((double)(endGPU - startGPU)) / CLOCKS_PER_SEC;
     printf("El tiempo de ejecucion en GPU es: %.10f\n", timeGPU);
-<<<<<<< HEAD
     
     wrTimes(s, strtok(basename(imageName), "."), timeGPU);
-
-=======
-
-    wrTimes(s, strtok(basename(imageName), "."), timeGPU);
->>>>>>> 006ed25f23e9b6d5944320d8072553da451d4117
  
     Mat imageGray, sobelImage;
     imageGray.create(height, width, CV_8UC1);
