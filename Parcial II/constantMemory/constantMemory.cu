@@ -55,8 +55,8 @@ __global__ void sobelFilter(const uchar *imgInput, const int width, const int he
         for (int j = 0; j < maskWidth; j++) {
             int focus_y = startj + j;
             if (focus_x >= 0 && focus_x < height && focus_y >= 0 && focus_y < width) {
-                magnitude_x += imgInput[focus_y + focus_x * width] * sobel_x[i * maskWidth + j];
-                magnitude_y += imgInput[focus_y + focus_x * width] * sobel_y[i * maskWidth + j];
+                magnitude_x += imgInput[focus_y + focus_x * width] * MX[i * maskWidth + j];
+                magnitude_y += imgInput[focus_y + focus_x * width] * MY[i * maskWidth + j];
             }
         }
     }
@@ -170,8 +170,14 @@ int main(int argc, char **argv) {
     
     double timeGPU = ((double)(endGPU - startGPU)) / CLOCKS_PER_SEC;
     printf("El tiempo de ejecucion en GPU es: %.10f\n", timeGPU);
+<<<<<<< HEAD
+    
+    wrTimes(s, strtok(basename(imageName), "."), timeGPU);
+
+=======
 
     wrTimes(s, strtok(basename(imageName), "."), timeGPU);
+>>>>>>> 006ed25f23e9b6d5944320d8072553da451d4117
  
     Mat imageGray, sobelImage;
     imageGray.create(height, width, CV_8UC1);
