@@ -66,6 +66,17 @@ __global__ void sobelFilter(const uchar *imgInput, const int width, const int he
 
 }
 
+void wrTimes(Size s, char *imgname, double time) {
+    long sz = s.width * s.height;
+    FILE *f = fopen("times/data.txt", "a");
+    if (f == NULL)
+        printf("Error opening file\n");
+    else
+        fprintf(f, "%ld %s %lf\n", sz, imgname, time);
+
+    fclose(f);
+}
+
 int main(int argc, char **argv) {
     char *imageName = argv[1];
     Mat image = imread(imageName, 1);
@@ -159,6 +170,8 @@ int main(int argc, char **argv) {
     
     double timeGPU = ((double)(endGPU - startGPU)) / CLOCKS_PER_SEC;
     printf("El tiempo de ejecucion en GPU es: %.10f\n", timeGPU);
+
+    wrTimes(s, strtok(basename(imageName), "."), timeGPU);
  
     Mat imageGray, sobelImage;
     imageGray.create(height, width, CV_8UC1);
@@ -181,8 +194,8 @@ int main(int argc, char **argv) {
     printf("La aceleracion obtenida es de: %.10fX\n", acceleration);    
     
 
-    imwrite("ferrari_gray.jpg", imageGray);
-    imwrite("ferrari_sobel.jpg", sobelImage);
+    //imwrite(strcat(strtok(basename(imageName), "."), "_gray.jpg"), imageGray);
+    //imwrite(strcat(strtok(basename(imageName), "."), "_sobel.jpg"), sobelImage);    
 
 
     free(h_imageB); free(h_imageC);

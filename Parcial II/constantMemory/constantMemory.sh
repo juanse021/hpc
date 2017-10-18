@@ -18,6 +18,6 @@ export CUDA_VISIBLE_DEVICES=0
 ./constantMemory ../Images/ford.jpg
 ./constantMemory ../Images/koenigsegg.jpg
 ./constantMemory ../Images/lamborghini.jpg
-./constantMemory ../Images/mercedes.jpg
+./constantMemory ../Images/maserati.jpg
 ./constantMemory ../Images/nissan.jpg
 ./constantMemory ../Images/pagani.jpg
