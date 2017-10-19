@@ -39,7 +39,7 @@ __device__ uchar clamp(double value) {
 
 
 __global__ void sobelFilter(const uchar *imgInput, const int width, const int height, uchar *imgOutput) {
-    __shared__ MatS[TILE_SIZE + maskWidth - 1][TILE_SIZE + maskWidth - 1];
+    __shared__ uchar MatS[TILE_SIZE + maskWidth - 1][TILE_SIZE + maskWidth - 1];
 
     int n = maskWidth / 2;
 
