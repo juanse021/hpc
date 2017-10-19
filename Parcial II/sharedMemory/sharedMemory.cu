@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
 
     int times = atoi(argv[2]);
 
-        do {
+    do {
         Size s = image.size();
         int width = s.width;
         int height = s.height;
