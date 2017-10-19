@@ -11,13 +11,13 @@ export LD_LIBRARY_PATH=/usr/local/cuda-8.0/lib64/${LD_LIBRARY_PATH:+:${LD_LIBRAR
 
 export CUDA_VISIBLE_DEVICES=0
 
-./sharedMemory ../Images/bentley.jpg
-./sharedMemory ../Images/bugatti.jpg
-./sharedMemory ../Images/chevrolet.jpg
-./sharedMemory ../Images/ferrari.jpg
-./sharedMemory ../Images/ford.jpg
-./sharedMemory ../Images/koenigsegg.jpg
-./sharedMemory ../Images/lamborghini.jpg
-./sharedMemory ../Images/maserati.jpg
-./sharedMemory ../Images/nissan.jpg
-./sharedMemory ../Images/pagani.jpg
+./sharedMemory ../Images/bentley.jpg 20
+./sharedMemory ../Images/bugatti.jpg 20
+./sharedMemory ../Images/chevrolet.jpg 20
+./sharedMemory ../Images/ferrari.jpg 20
+./sharedMemory ../Images/ford.jpg 20
+./sharedMemory ../Images/koenigsegg.jpg 20
+./sharedMemory ../Images/lamborghini.jpg 20
+./sharedMemory ../Images/maserati.jpg 20
+./sharedMemory ../Images/nissan.jpg 20
+./sharedMemory ../Images/pagani.jpg 20
