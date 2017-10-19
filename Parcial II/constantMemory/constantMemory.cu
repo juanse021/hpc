@@ -21,9 +21,9 @@ __global__ void grayImageDevice(const uchar *imgInput, const int width, const in
 
     if (row < height && col < width) {
         int index = row * width + col;
-        imgOutput[index] = imgInput[(row * width + col) * 3 + 2] * 0.3 + \
-                           imgInput[(row * width + col) * 3 + 1] * 0.59 + \
-                           imgInput[(row * width + col) * 3] * 0.11;
+        imgOutput[index] = imgInput[index * 3 + 2] * 0.3 + \
+                           imgInput[index * 3 + 1] * 0.59 + \
+                           imgInput[index * 3] * 0.11;
     }
 }
 
